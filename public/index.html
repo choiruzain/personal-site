@@ -8,38 +8,43 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<aside class="side">
-  <div class="me">
-    <div class="avatar"><img src="photo.jpg" alt="Photo of Dr Choiru Za'in"></div>
-    <div class="name">Dr Choiru Za'in</div>
-    <div class="role">Lecturer, Computer Science</div>
+<header class="top">
+  <button class="burger" id="openMenu" aria-label="Open menu"><span></span><span></span><span></span></button>
+  <a class="logo" href="#home">CHOIRU<b>ZAIN</b></a>
+  <label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>
+    <input id="q" type="search" placeholder="Search this site, e.g. Spark, cloud, award"></label>
+  <div class="icons">
+    <a href="https://github.com/choiruzain" title="GitHub"><svg viewBox="0 0 24 24"><path d="M9 19c-4 1.5-4-2-6-2.5M15 21v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12 12 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21"/></svg></a>
+    <a href="https://www.linkedin.com/in/choiru-za-in-452358167/" title="LinkedIn"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/></svg></a>
+    <a href="mailto:choiru.zain@monash.edu" title="Email"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></a>
   </div>
-  <nav>
-    <a href="#home" class="active"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
-    <a href="#projects"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Projects</a>
-    <a href="#teaching"><svg viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5"/></svg>Teaching</a>
-    <a href="#research"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4.5-4.5"/></svg>Research</a>
-    <a href="#learning"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2zM4 19V5"/></svg>Learning</a>
-    <a href="#activities"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.5 3-6 6-6s6 2.5 6 6M15 20c0-2 1-4 3-4s3 1.5 3 4"/></svg>Activities</a>
-    <a href="#about"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.5 18.5c1.5-2 3.5-3 5.5-3s4 1 5.5 3"/></svg>About</a>
-  </nav>
-  <div class="links">
-    <a href="mailto:choiru.zain@monash.edu">Email</a> · <a href="https://www.linkedin.com/in/choiru-za-in-452358167/">LinkedIn</a> · <a href="https://github.com/choiruzain">GitHub</a> · <a href="https://scholar.google.com/citations?user=Cudw4egAAAAJ">Scholar</a>
+</header>
+
+<section class="tiles" id="home">
+  <div class="group"><h2>Teaching</h2>
+    <div class="row">
+      <a class="tile" href="#teaching">Units<br>taught</a><a class="tile" href="#teaching">Teaching<br>approach</a>
+      <a class="tile" href="https://drive.google.com/drive/folders/1snjhBznt65JupvJGGm4GPiokunYorU8l?usp=sharing">Teaching<br>portfolio</a><a class="tile" href="#learning">Learning<br>notes</a>
+    </div></div>
+  <div class="group"><h2>Research &amp; Builds</h2>
+    <div class="row">
+      <a class="tile" href="#research">Papers</a><a class="tile" href="#projects">Projects</a>
+      <a class="tile" href="#activities">Leadership</a><a class="tile" href="#about">About</a>
+    </div></div>
+</section>
+
+<div class="feature">
+  <div class="ftext">
+    <p class="kicker">Dr Choiru Za'in</p>
+    <h1>Teaching-focused lecturer in computer science, data science and AI</h1>
+    <p>PhD in Computer Science, La Trobe University. Teaching big data, databases, cloud and AI at Monash and La Trobe.</p>
+    <div class="chips"><span><b>4.70/5</b> SFT 2024</span><span><b>94/100</b> Monash 2022</span><span><b>2026</b> team Education Excellence Award</span></div>
   </div>
-</aside>
+  <div class="fimg"><img src="photo.jpg" alt="Photo of Dr Choiru Za'in"></div>
+</div>
 
 <main>
-  <section id="home" class="hero">
-    <h1>Teaching-focused lecturer in computer science, data science and AI.</h1>
-    <p class="sub">PhD in Computer Science, La Trobe University. Teaching at Monash and La Trobe. Based in Melbourne.</p>
-    <div class="stats">
-      <div><b>4.70/5</b><span>La Trobe SFT, CSE3CWA 2024</span></div>
-      <div><b>94/100</b><span>Monash, FIT5137 2022 (faculty avg 83)</span></div>
-      <div><b>2026</b><span>Monash SSC Education Excellence Award, FIT3003 team</span></div>
-    </div>
-  </section>
-
-  <section id="projects">
+<section id="projects">
     <h2><span>Projects.</span> Open-source tools I built for teaching and research.</h2>
     <div class="cards">
       <a class="card" href="https://github.com/choiruzain/polyglot-bigdata-lab">
@@ -110,15 +115,48 @@
     <p class="muted">Also taught at RMIT University (2026), Victoria University (2025) and Nanyang Technological University, Singapore (2018–19).</p>
   </section>
 
-  <footer>&copy; 2026 Choiru Za'in</footer>
-</main>
+  </main>
+<footer><span>&copy; 2026 Choiru Za'in</span><span>Melbourne, Australia</span></footer>
+
+<!-- slide-out side panel -->
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" aria-hidden="true">
+  <div class="pcol left">
+    <button class="cat active" data-cat="teach">Teaching <i>&rsaquo;</i></button>
+    <button class="cat" data-cat="research">Research <i>&rsaquo;</i></button>
+    <button class="cat" data-cat="projects">Projects <i>&rsaquo;</i></button>
+    <button class="cat" data-cat="learning">Learning <i>&rsaquo;</i></button>
+    <button class="cat" data-cat="activities">Activities <i>&rsaquo;</i></button>
+    <button class="cat" data-cat="about">About &amp; contact <i>&rsaquo;</i></button>
+  </div>
+  <div class="pcol right">
+    <div class="sub" data-sub="teach"><a href="#teaching">Teaching overview</a><a href="#teaching">Monash University (2021&ndash;2026)</a><a href="#teaching">La Trobe University (2023&ndash;2026)</a><a href="#teaching">Teaching approach</a><a href="https://drive.google.com/drive/folders/1snjhBznt65JupvJGGm4GPiokunYorU8l?usp=sharing">Teaching portfolio &rsaquo;</a></div>
+    <div class="sub" data-sub="research" hidden><a href="#research">Selected papers</a><a href="https://scholar.google.com/citations?user=Cudw4egAAAAJ">Google Scholar &rsaquo;</a></div>
+    <div class="sub" data-sub="projects" hidden><a href="https://github.com/choiruzain/polyglot-bigdata-lab">polyglot-bigdata-lab &rsaquo;</a><a href="https://github.com/choiruzain/greenbasket-bi-case">greenbasket-bi-case &rsaquo;</a><a href="https://github.com/choiruzain/edge-stream-dss">edge-stream-dss &rsaquo;</a><a href="https://github.com/choiruzain/personal-site">This website &rsaquo;</a></div>
+    <div class="sub" data-sub="learning" hidden><a href="#learning">REST APIs with FastAPI</a><a href="#learning">Building with Claude</a></div>
+    <div class="sub" data-sub="activities" hidden><a href="#activities">Community leadership</a><a href="#activities">Outreach</a></div>
+    <div class="sub" data-sub="about" hidden><a href="#about">About me</a><a href="mailto:choiru.zain@monash.edu">Email</a><a href="https://www.linkedin.com/in/choiru-za-in-452358167/">LinkedIn &rsaquo;</a><a href="https://github.com/choiruzain">GitHub &rsaquo;</a></div>
+  </div>
+  <button class="close" id="closeMenu" aria-label="Close menu">&times;</button>
+</aside>
 
 <script>
-  const links = [...document.querySelectorAll('nav a')];
-  const obs = new IntersectionObserver(es => es.forEach(e => {
-    if (e.isIntersecting) links.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
-  }), { rootMargin: '-40% 0px -55% 0px' });
-  document.querySelectorAll('main section').forEach(s => obs.observe(s));
+  const panel=document.getElementById('panel'), scrim=document.getElementById('scrim');
+  const open=()=>{panel.classList.add('open');scrim.classList.add('open');panel.setAttribute('aria-hidden','false')};
+  const close=()=>{panel.classList.remove('open');scrim.classList.remove('open');panel.setAttribute('aria-hidden','true')};
+  document.getElementById('openMenu').onclick=open; document.getElementById('closeMenu').onclick=close; scrim.onclick=close;
+  panel.querySelectorAll('.sub a').forEach(a=>a.addEventListener('click',close));
+  panel.querySelectorAll('.cat').forEach(c=>c.addEventListener('click',()=>{
+    panel.querySelectorAll('.cat').forEach(x=>x.classList.toggle('active',x===c));
+    panel.querySelectorAll('.sub').forEach(s=>s.hidden=s.dataset.sub!==c.dataset.cat);
+  }));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')close()});
+  // simple search: highlight and jump to first match
+  document.getElementById('q').addEventListener('keydown',e=>{
+    if(e.key!=='Enter')return; const t=e.target.value.trim().toLowerCase(); if(!t)return;
+    const el=[...document.querySelectorAll('main .row, main .card, main p')].find(n=>n.textContent.toLowerCase().includes(t));
+    if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.classList.add('hit');setTimeout(()=>el.classList.remove('hit'),2000)}
+  });
 </script>
 </body>
 </html>
