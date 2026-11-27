@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GreenBasket board dashboard | Choiru Za'in</title>
+<meta name="description" content="Board dashboard for GreenBasket, an original BI teaching case with synthetic multi-source data.">
+<style>
+.viz-root{
+  color-scheme:light;
+  --page:#f1efed;--surface-1:#fcfcfb;--card:#ffffff;
+  --text-primary:#1f1f1f;--text-secondary:#52514e;--text-muted:#6f6e69;
+  --grid:#e6e4e0;--axis:#b9b7b1;
+  --brand:#1f7a45;--accent:#c8621a;
+  --series-1:#2a78d6;--series-2:#eb6834;
+  --tip-bg:#1f1f1f;--tip-text:#f6f6f4;
+}
+@media (prefers-color-scheme:dark){
+  :root:where(:not([data-theme="light"])) .viz-root{
+    color-scheme:dark;
+    --page:#121211;--surface-1:#1a1a19;--card:#1a1a19;
+    --text-primary:#f0efec;--text-secondary:#c3c2b7;--text-muted:#9c9b93;
+    --grid:#2c2c2a;--axis:#55544f;
+    --brand:#4cb97a;--accent:#f0954f;
+    --series-1:#3987e5;--series-2:#d95926;
+    --tip-bg:#f0efec;--tip-text:#1a1a19;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0}
+.viz-root{min-height:100vh;background:var(--page);color:var(--text-primary);
+  font-family:"Segoe UI",-apple-system,Helvetica,Arial,sans-serif;line-height:1.5}
+a{color:var(--brand)}
+header.top{display:flex;align-items:center;gap:1rem;padding:.8rem 1.5rem;background:var(--card);border-bottom:1px solid var(--grid)}
+header.top a.back{text-decoration:none;font-weight:600}
+header.top .spacer{flex:1}
+header.top a.code{font-size:.9rem}
+main{max-width:1180px;margin:0 auto;padding:1.6rem 1.2rem 3rem}
+.kicker{color:var(--accent);font-weight:600;margin:0}
+h1{font-weight:300;font-size:2.2rem;line-height:1.2;margin:.2rem 0 .5rem}
+.lede{color:var(--text-secondary);max-width:760px;margin:0 0 .4rem}
+.synthetic{display:inline-block;font-size:.85rem;color:var(--text-secondary);border:1px solid var(--grid);background:var(--card);border-radius:999px;padding:.15rem .7rem;margin:.3rem 0 1.2rem}
+.filters{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin:0 0 1.2rem}
+.filters span{color:var(--text-secondary);font-size:.9rem;margin-right:.2rem}
+.filters button{font:inherit;font-size:.9rem;border:1px solid var(--axis);background:var(--card);color:var(--text-primary);border-radius:6px;padding:.3rem .8rem;cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.filters button:focus-visible{outline:2px solid var(--series-1);outline-offset:2px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;margin-bottom:1rem}
+.kpi{background:var(--card);border-radius:12px;padding:1rem 1.1rem;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.kpi .label{color:var(--text-secondary);font-size:.9rem}
+.kpi .value{font-size:1.9rem;font-weight:600;letter-spacing:-.5px;line-height:1.2;margin:.2rem 0}
+.kpi .delta{font-size:.85rem;color:var(--text-secondary)}
+.kpi .delta b{color:var(--text-primary)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+@media (max-width:980px){.grid4{grid-template-columns:1fr 1fr}}
+@media (max-width:700px){.grid2,.grid4{grid-template-columns:1fr}}
+.card{background:var(--card);border-radius:12px;padding:1rem 1.1rem 1.1rem;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:1rem;min-width:0}
+.card h2{font-size:1.05rem;font-weight:600;margin:0}
+.card .sub{color:var(--text-secondary);font-size:.85rem;margin:.1rem 0 .6rem}
+.legend{display:flex;gap:1rem;font-size:.85rem;color:var(--text-secondary);margin:0 0 .4rem}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:.35rem;vertical-align:-1px}
+.chart{position:relative;width:100%}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart text{fill:var(--text-muted);font-size:11px;font-family:inherit}
+.chart .val{fill:var(--text-primary);font-weight:600}
+.chart .gridline{stroke:var(--grid);stroke-width:1}
+.chart .baseline{stroke:var(--axis);stroke-width:1}
+.chart .hit{fill:transparent;cursor:crosshair}
+.chart .hit:focus{outline:none}
+.chart .hit:focus-visible{stroke:var(--series-1);stroke-width:2}
+.chart .xhair{stroke:var(--axis);stroke-width:1;stroke-dasharray:3 3}
+.tip{position:fixed;z-index:50;pointer-events:none;background:var(--tip-bg);color:var(--tip-text);border-radius:8px;padding:.45rem .65rem;font-size:.82rem;line-height:1.35;box-shadow:0 4px 14px rgba(0,0,0,.2);opacity:0;transition:opacity .08s}
+.tip .t{opacity:.75;margin-bottom:.15rem}
+.tip .r{display:flex;align-items:center;gap:.45rem}
+.tip .r b{font-size:.95rem}
+.tip .k{display:inline-block;width:12px;height:3px;border-radius:2px}
+.dq{list-style:none;margin:.4rem 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.6rem 1.4rem}
+.dq li{border-left:3px solid var(--brand);padding:.1rem 0 .1rem .7rem}
+.dq b{display:block;font-size:1.25rem}
+.dq span{color:var(--text-secondary);font-size:.88rem}
+details{margin-top:.4rem}
+summary{cursor:pointer;color:var(--brand);font-weight:600}
+.tablewrap{overflow-x:auto;margin-top:.6rem}
+table{border-collapse:collapse;font-size:.85rem;width:100%}
+th,td{padding:.3rem .6rem;text-align:right;border-bottom:1px solid var(--grid);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--text-secondary);font-weight:600}
+.about p{color:var(--text-secondary);margin:.3rem 0}
+footer{color:var(--text-muted);font-size:.85rem;text-align:center;margin-top:1.4rem}
+</style>
+</head>
+<body>
+<div class="viz-root">
+<header class="top">
+  <a class="back" href="../">&larr; Choiru Za'in</a>
+  <span class="spacer"></span>
+  <a class="code" href="https://github.com/choiruzain/greenbasket-bi-case">Code on GitHub</a>
+</header>
+<main>
+  <p class="kicker">BI teaching case</p>
+  <h1>GreenBasket board dashboard</h1>
+  <p class="lede">GreenBasket is a fictional Melbourne grocery chain with 12 stores and a click-and-collect app. This is what the board sees: company-wide results built from four messy source systems (tills, loyalty, app and store inventory files) after cleaning.</p>
+  <span class="synthetic">All data is synthetic. Company, stores and people are fictional.</span>
+
+  <div class="filters" role="group" aria-label="Time range">
+    <span>Time range</span>
+    <button type="button" data-range="all" aria-pressed="true">All (Jan 2024 to Jun 2026)</button>
+    <button type="button" data-range="FY2025" aria-pressed="false">FY2025</button>
+    <button type="button" data-range="FY2026" aria-pressed="false">FY2026</button>
+  </div>
+
+  <section class="kpis" id="kpis" aria-label="Key figures, FY2026 compared with FY2025"></section>
+
+  <section class="card">
+    <h2>Monthly revenue</h2>
+    <p class="sub">In-store sales net of refunds, plus click-and-collect orders</p>
+    <div class="legend"><span><i style="background:var(--series-1)"></i>In-store</span><span><i style="background:var(--series-2)"></i>Online</span></div>
+    <div class="chart" id="c-revenue"></div>
+  </section>
+
+  <section class="grid4">
+    <div class="card"><h2>Average basket</h2><p class="sub">Revenue per basket, all channels</p><div class="chart" id="c-basket"></div></div>
+    <div class="card"><h2>Fresh waste rate</h2><p class="sub">Write-off cost as share of fresh deliveries</p><div class="chart" id="c-waste"></div></div>
+    <div class="card"><h2>Member share</h2><p class="sub">In-store sales with a GreenPoints card</p><div class="chart" id="c-member"></div></div>
+    <div class="card"><h2>Online items not picked</h2><p class="sub">Substituted or unavailable</p><div class="chart" id="c-picked"></div></div>
+  </section>
+
+  <section class="grid2">
+    <div class="card"><h2>Revenue by department</h2><p class="sub">In-store, whole period</p><div class="chart" id="c-dept"></div></div>
+    <div class="card"><h2>Revenue by store</h2><p class="sub">In-store and online, whole period</p><div class="chart" id="c-store"></div></div>
+  </section>
+
+  <section class="card">
+    <h2>Cleaning behind these numbers</h2>
+    <p class="sub">The source extracts contain deliberate data quality problems. These were fixed before anything was counted.</p>
+    <ul class="dq" id="dq"></ul>
+  </section>
+
+  <section class="card">
+    <h2>Monthly figures</h2>
+    <details><summary>Show the table behind the charts</summary><div class="tablewrap" id="table"></div></details>
+  </section>
+
+  <section class="card about">
+    <h2>About this case</h2>
+    <p>Students design a data warehouse across the four source systems to answer three board questions: why basket value is falling, what drives fresh produce waste, and whether the loyalty program pays for itself.</p>
+    <p>This page shows only the symptoms the board already knows about. The breakdowns that answer those questions are left for students to find.</p>
+    <p>Built by Choiru Za'in with Python (pandas) and plain HTML and SVG. <a href="https://github.com/choiruzain/greenbasket-bi-case">See the data generator on GitHub</a>.</p>
+  </section>
+  <footer>Synthetic data, generated with seed 3003 for January 2024 to June 2026.</footer>
+</main>
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(() => {
+"use strict";
+const NS = "http://www.w3.org/2000/svg";
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const mLabel = m => MON[+m.slice(5) - 1] + " " + m.slice(0, 4);
+const money = v => "$" + Math.round(v).toLocaleString("en-AU");
+const moneyK = v => v >= 1e6 ? "$" + (v / 1e6).toFixed(2) + "m" : "$" + Math.round(v / 1000) + "k";
+const pct = (v, d = 1) => (v * 100).toFixed(d) + "%";
+const tip = document.getElementById("tip");
+let DATA, range = "all";
+
+function el(name, attrs = {}, parent) {
+  const n = document.createElementNS(NS, name);
+  for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function text(parent, x, y, str, attrs = {}) {
+  const t = el("text", Object.assign({ x, y }, attrs), parent);
+  t.textContent = str;
+  return t;
+}
+function showTip(evt, title, rows) {
+  tip.replaceChildren();
+  const t = document.createElement("div"); t.className = "t"; t.textContent = title; tip.appendChild(t);
+  for (const r of rows) {
+    const row = document.createElement("div"); row.className = "r";
+    if (r.color) { const k = document.createElement("span"); k.className = "k"; k.style.background = r.color; row.appendChild(k); }
+    const b = document.createElement("b"); b.textContent = r.value; row.appendChild(b);
+    if (r.name) { const s = document.createElement("span"); s.textContent = r.name; row.appendChild(s); }
+    tip.appendChild(row);
+  }
+  let x, y;
+  if (evt.clientX !== undefined && evt.type !== "focus") { x = evt.clientX; y = evt.clientY; }
+  else { const b = evt.target.getBoundingClientRect(); x = b.left + b.width / 2; y = b.top; }
+  tip.style.opacity = 1;
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(window.innerWidth - w - 8, Math.max(8, x + 14)) + "px";
+  tip.style.top = Math.max(8, y - h - 12) + "px";
+}
+function hideTip() { tip.style.opacity = 0; }
+
+function selection() {
+  const ms = DATA.months;
+  let lo = 0, hi = ms.length - 1;
+  if (range === "FY2025") { lo = ms.indexOf("2024-07"); hi = ms.indexOf("2025-06"); }
+  if (range === "FY2026") { lo = ms.indexOf("2025-07"); hi = ms.indexOf("2026-06"); }
+  return { lo, hi };
+}
+function niceMax(v) {
+  const p = Math.pow(10, Math.floor(Math.log10(v))), n = v / p;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p;
+}
+function xTickEvery(n) { return n <= 12 ? 2 : 6; }
+
+// Stacked monthly bars: in-store (series 1) + online (series 2)
+function stacked(host, months, a, b) {
+  host.replaceChildren();
+  const W = Math.max(320, host.clientWidth), H = 260, L = 52, R = 8, T = 10, B = 26;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Monthly revenue, in-store and online, stacked bars" }, host);
+  const tot = a.map((v, i) => (v || 0) + (b[i] || 0));
+  const max = niceMax(Math.max(...tot)), y = v => T + (H - T - B) * (1 - v / max);
+  for (let k = 0; k <= 4; k++) {
+    const v = max * k / 4, yy = y(v);
+    el("line", { x1: L, x2: W - R, y1: yy, y2: yy, class: k ? "gridline" : "baseline" }, svg);
+    text(svg, L - 6, yy + 4, moneyK(v), { "text-anchor": "end" });
+  }
+  const n = months.length, step = (W - L - R) / n, bw = Math.max(3, step - 2);
+  const every = xTickEvery(n);
+  months.forEach((m, i) => {
+    const x = L + i * step + (step - bw) / 2;
+    const ya = y(a[i]), yb = y(a[i] + b[i]);
+    // in-store: anchored to the baseline, square top (online sits on it)
+    el("rect", { x, y: ya, width: bw, height: H - B - ya, fill: "var(--series-1)" }, svg);
+    // online: 2px surface gap, rounded data end
+    const hb = Math.max(0, ya - yb - 2);
+    const r = Math.min(4, bw / 2, hb);
+    el("path", { d: `M${x},${ya - 2}V${yb + r}q0,-${r} ${r},-${r}h${bw - 2 * r}q${r},0 ${r},${r}V${ya - 2}Z`, fill: "var(--series-2)" }, svg);
+    if (i % every === 0) text(svg, x + bw / 2, H - 8, n <= 12 ? MON[+m.slice(5) - 1] : mLabel(m), { "text-anchor": "middle" });
+    const hit = el("rect", { x: L + i * step, y: T, width: step, height: H - T - B, class: "hit", tabindex: 0,
+      "aria-label": `${mLabel(m)}: total ${money(tot[i])}, in-store ${money(a[i])}, online ${money(b[i])}` }, svg);
+    const fire = e => showTip(e, mLabel(m), [
+      { value: money(tot[i]), name: "total" },
+      { value: money(a[i]), name: "in-store", color: "var(--series-1)" },
+      { value: money(b[i]), name: "online", color: "var(--series-2)" }]);
+    hit.addEventListener("pointermove", fire); hit.addEventListener("focus", fire);
+    hit.addEventListener("pointerleave", hideTip); hit.addEventListener("blur", hideTip);
+  });
+}
+
+// Single-series line with crosshair tooltip
+function line(host, months, vals, fmt, label, zeroBase) {
+  host.replaceChildren();
+  const W = Math.max(240, host.clientWidth), H = 170, L = 44, R = 10, T = 12, B = 24;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label }, host);
+  const vs = vals.filter(v => v != null);
+  let lo = Math.min(...vs), hi = Math.max(...vs);
+  if (zeroBase) lo = 0;
+  const pad = (hi - lo) * 0.15 || hi * 0.1 || 1; lo = zeroBase ? 0 : (lo >= 0 ? Math.max(0, lo - pad) : lo - pad); hi = hi + pad;
+  const n = months.length, x = i => L + (W - L - R) * (n === 1 ? 0.5 : i / (n - 1));
+  const y = v => T + (H - T - B) * (1 - (v - lo) / (hi - lo));
+  for (let k = 0; k <= 3; k++) {
+    const v = lo + (hi - lo) * k / 3, yy = y(v);
+    el("line", { x1: L, x2: W - R, y1: yy, y2: yy, class: k ? "gridline" : "baseline" }, svg);
+    text(svg, L - 6, yy + 4, fmt(v, true), { "text-anchor": "end" });
+  }
+  const every = n <= 12 ? 3 : 6;
+  months.forEach((m, i) => { if (i % every === 0) text(svg, x(i), H - 7, n <= 12 ? MON[+m.slice(5) - 1] : MON[+m.slice(5) - 1] + " " + m.slice(2, 4), { "text-anchor": "middle" }); });
+  let d = "";
+  vals.forEach((v, i) => { if (v != null) d += (d ? "L" : "M") + x(i).toFixed(1) + "," + y(v).toFixed(1); });
+  el("path", { d, fill: "none", stroke: "var(--series-1)", "stroke-width": 2, "stroke-linejoin": "round", "stroke-linecap": "round" }, svg);
+  // end label: last value
+  const li = vals.length - 1;
+  el("circle", { cx: x(li), cy: y(vals[li]), r: 4, fill: "var(--series-1)", stroke: "var(--card)", "stroke-width": 2 }, svg);
+  const xh = el("line", { x1: 0, x2: 0, y1: T, y2: H - B, class: "xhair", visibility: "hidden" }, svg);
+  const dot = el("circle", { r: 4.5, fill: "var(--series-1)", stroke: "var(--card)", "stroke-width": 2, visibility: "hidden" }, svg);
+  const step = (W - L - R) / Math.max(1, n - 1);
+  months.forEach((m, i) => {
+    const hit = el("rect", { x: x(i) - step / 2, y: T, width: step, height: H - T - B, class: "hit", tabindex: 0,
+      "aria-label": `${mLabel(m)}: ${vals[i] == null ? "no data" : fmt(vals[i])}` }, svg);
+    const fire = e => {
+      if (vals[i] == null) return;
+      xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("visibility", "visible");
+      dot.setAttribute("cx", x(i)); dot.setAttribute("cy", y(vals[i])); dot.setAttribute("visibility", "visible");
+      showTip(e, mLabel(m), [{ value: fmt(vals[i]), color: "var(--series-1)" }]);
+    };
+    const off = () => { xh.setAttribute("visibility", "hidden"); dot.setAttribute("visibility", "hidden"); hideTip(); };
+    hit.addEventListener("pointermove", fire); hit.addEventListener("focus", fire);
+    hit.addEventListener("pointerleave", off); hit.addEventListener("blur", off);
+  });
+}
+
+// Horizontal bars, single hue, value labels at bar end
+function hbars(host, items, label) {
+  host.replaceChildren();
+  const W = Math.max(280, host.clientWidth), rowH = 26, L = 118, R = 64, T = 4;
+  const H = T + items.length * rowH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label }, host);
+  const max = Math.max(...items.map(d => d.revenue)), total = items.reduce((s, d) => s + d.revenue, 0);
+  items.forEach((d, i) => {
+    const yy = T + i * rowH, bh = 16, w = Math.max(2, (W - L - R) * d.revenue / max);
+    text(svg, L - 8, yy + bh / 2 + 4, d.name, { "text-anchor": "end", style: "fill:var(--text-secondary);font-size:12px" });
+    const r = Math.min(4, bh / 2, w);
+    el("path", { d: `M${L},${yy}h${w - r}q${r},0 ${r},${r}v${bh - 2 * r}q0,${r} -${r},${r}h-${w - r}Z`, fill: "var(--series-1)" }, svg);
+    text(svg, L + w + 6, yy + bh / 2 + 4, moneyK(d.revenue), { class: "val" });
+    const hit = el("rect", { x: 0, y: yy - 4, width: W, height: rowH, class: "hit", tabindex: 0,
+      "aria-label": `${d.name}: ${money(d.revenue)}, ${pct(d.revenue / total)} of total` }, svg);
+    const fire = e => showTip(e, d.name, [{ value: money(d.revenue), name: pct(d.revenue / total) + " of total" }]);
+    hit.addEventListener("pointermove", fire); hit.addEventListener("focus", fire);
+    hit.addEventListener("pointerleave", hideTip); hit.addEventListener("blur", hideTip);
+  });
+}
+
+function kpis() {
+  const a = DATA.kpis.FY2025, b = DATA.kpis.FY2026, host = document.getElementById("kpis");
+  host.replaceChildren();
+  const change = (nv, ov) => { const c = nv / ov - 1; return (c >= 0 ? "▲ " : "▼ ") + Math.abs(c * 100).toFixed(1) + "%"; };
+  const pts = (nv, ov) => { const c = (nv - ov) * 100; return (c >= 0 ? "▲ " : "▼ ") + Math.abs(c).toFixed(1) + " pts"; };
+  const tiles = [
+    ["Revenue, FY2026", moneyK(b.revenue), change(b.revenue, a.revenue), moneyK(a.revenue)],
+    ["Baskets, FY2026", b.baskets.toLocaleString("en-AU"), change(b.baskets, a.baskets), a.baskets.toLocaleString("en-AU")],
+    ["Average basket, FY2026", "$" + b.avg_basket.toFixed(2), change(b.avg_basket, a.avg_basket), "$" + a.avg_basket.toFixed(2)],
+    ["Online share of revenue", pct(b.online_share), pts(b.online_share, a.online_share), pct(a.online_share)],
+    ["Fresh waste rate", pct(b.waste_rate), pts(b.waste_rate, a.waste_rate), pct(a.waste_rate)],
+  ];
+  for (const [label, value, delta, prev] of tiles) {
+    const k = document.createElement("div"); k.className = "kpi";
+    const l = document.createElement("div"); l.className = "label"; l.textContent = label;
+    const v = document.createElement("div"); v.className = "value"; v.textContent = value;
+    const d = document.createElement("div"); d.className = "delta";
+    const bb = document.createElement("b"); bb.textContent = delta;
+    d.append(bb, document.createTextNode(" vs FY2025 (" + prev + ")"));
+    k.append(l, v, d); host.appendChild(k);
+  }
+}
+
+function dq() {
+  const q = DATA.data_quality, host = document.getElementById("dq");
+  const rows = [
+    [q.duplicate_transactions_removed, "duplicate till transactions removed after till restarts"],
+    [q.refund_transactions_netted, "refunds netted off against sales"],
+    [q.sale_lines_with_old_product_codes_remapped, "sale lines mapped from old to new product codes (July 2025 re-numbering)"],
+    [q.app_orders_converted_from_utc, "app orders moved from UTC to Melbourne time"],
+    [q.supplier_name_spellings_matched + " → " + q.official_suppliers, "supplier name spellings matched to the official list"],
+    [q.gram_rows_converted_to_kg, "inventory rows converted from grams to kilograms"],
+  ];
+  host.replaceChildren();
+  for (const [n, s] of rows) {
+    const li = document.createElement("li"), b = document.createElement("b"), sp = document.createElement("span");
+    b.textContent = typeof n === "number" ? n.toLocaleString("en-AU") : n; sp.textContent = s;
+    li.append(b, sp); host.appendChild(li);
+  }
+}
+
+function table(lo, hi) {
+  const host = document.getElementById("table"), t = document.createElement("table");
+  const head = ["Month", "In-store", "Online", "Baskets", "Avg basket", "Waste rate", "Member share", "Online not picked"];
+  const tr = document.createElement("tr");
+  head.forEach(h => { const th = document.createElement("th"); th.scope = "col"; th.textContent = h; tr.appendChild(th); });
+  const thead = document.createElement("thead"); thead.appendChild(tr); t.appendChild(thead);
+  const tb = document.createElement("tbody");
+  for (let i = lo; i <= hi; i++) {
+    const D = DATA, r = document.createElement("tr");
+    [mLabel(D.months[i]), money(D.revenue_instore[i]), money(D.revenue_online[i]), D.baskets[i].toLocaleString("en-AU"),
+     "$" + D.avg_basket[i].toFixed(2), pct(D.waste_rate[i]), pct(D.member_share[i]), pct(D.online_not_picked[i])]
+      .forEach(c => { const td = document.createElement("td"); td.textContent = c; r.appendChild(td); });
+    tb.appendChild(r);
+  }
+  t.appendChild(tb); host.replaceChildren(t);
+}
+
+function render() {
+  const { lo, hi } = selection(), D = DATA, sl = arr => arr.slice(lo, hi + 1), ms = sl(D.months);
+  stacked(document.getElementById("c-revenue"), ms, sl(D.revenue_instore), sl(D.revenue_online));
+  line(document.getElementById("c-basket"), ms, sl(D.avg_basket), (v, ax) => "$" + v.toFixed(ax ? 0 : 2), "Average basket value by month");
+  line(document.getElementById("c-waste"), ms, sl(D.waste_rate), (v, ax) => pct(v, ax ? 0 : 1), "Fresh waste rate by month");
+  line(document.getElementById("c-member"), ms, sl(D.member_share), (v, ax) => pct(v, ax ? 0 : 1), "Member share of in-store sales by month");
+  line(document.getElementById("c-picked"), ms, sl(D.online_not_picked), (v, ax) => pct(v, ax ? 0 : 1), "Share of online items not picked by month");
+  hbars(document.getElementById("c-dept"), D.departments, "In-store revenue by department");
+  hbars(document.getElementById("c-store"), D.stores, "Revenue by store");
+  table(lo, hi);
+}
+
+document.querySelectorAll(".filters button").forEach(btn => btn.addEventListener("click", () => {
+  range = btn.dataset.range;
+  document.querySelectorAll(".filters button").forEach(b => b.setAttribute("aria-pressed", b === btn));
+  render();
+}));
+let rt; window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(render, 120); });
+
+fetch("data.json").then(r => r.json()).then(d => { DATA = d; kpis(); dq(); render(); })
+  .catch(() => { document.getElementById("kpis").textContent = "Could not load the dashboard data."; });
+})();
+</script>
+</body>
+</html>
